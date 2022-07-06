@@ -1,4 +1,4 @@
-package com.wd.mydb.backend.common;
+package com.wd.mydb.common;
 
 public class Error {
 

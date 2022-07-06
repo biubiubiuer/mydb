@@ -1,7 +1,9 @@
 package com.wd.mydb.backend.tm;
 
-import com.wd.mydb.backend.common.Error;
+import com.wd.mydb.common.Error;
 import com.wd.mydb.backend.utils.Panic;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,7 +24,7 @@ public interface TransactionManager {
     boolean isAborted(long xid);  // 查询一个事物d的状态是否是已取消
     void close();  // 关闭 TM
     
-    public static TransactionManagerImpl create(String path) {
+    static TransactionManagerImpl create(String path) {
         File f = new File(path + XID_SUFFIX);
         try {
             if (!f.createNewFile()) {
@@ -45,6 +47,35 @@ public interface TransactionManager {
         }
         
         // 写空 XID 文件头
-        ByteBuffer buf = ByteBuffer.wrap(new byte[LEN_XID_HEADER_LENGTH]);
+        ByteBuf buf = Unpooled.wrappedBuffer(new byte[LEN_XID_HEADER_LENGTH]);
+        try {
+            fc.position(0);
+            fc.write(buf.nioBuffer());
+        } catch (IOException e) {
+            Panic.panic(e);
+        }
+        
+        return new TransactionManagerImpl(raf, fc);
+    }
+    
+    static TransactionManagerImpl open(String path) {
+        File f = new File(path + XID_SUFFIX);
+        if (!f.exists()) {
+            Panic.panic(Error.FileNotExistsException);
+        }
+        if (!f.canRead() || !f.canWrite()) {
+            Panic.panic(Error.FileCannotRWException);
+        }
+        
+        FileChannel fc = null;
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(f, "rw");
+            fc = raf.getChannel();
+        } catch (FileNotFoundException e) {
+            Panic.panic(e);
+        }
+        
+        return new TransactionManagerImpl(raf, fc);
     }
 }

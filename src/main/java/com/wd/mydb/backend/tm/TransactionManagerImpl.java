@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.locks.Lock;
 
-import com.wd.mydb.backend.common.Error;
+import com.wd.mydb.common.Error;
 import com.wd.mydb.backend.utils.Panic;
 import com.wd.mydb.backend.utils.Parser;
 import io.netty.buffer.ByteBuf;
@@ -17,7 +17,7 @@ import static com.wd.mydb.backend.utils.DBConstant.*;
 
 public class TransactionManagerImpl implements TransactionManager{
 
-    public TransactionManagerImpl(RandomAccessFile file, FileChannel fc, long xidCounter, Lock counterLock) {
+    public TransactionManagerImpl(RandomAccessFile file, FileChannel fc) {
         this.file = file;
         this.fc = fc;
         this.xidCounter = xidCounter;
