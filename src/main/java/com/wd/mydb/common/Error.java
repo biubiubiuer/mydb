@@ -14,4 +14,9 @@ public class Error {
      * tm
      */
     public static final Exception BadXIDFileException = new RuntimeException("Bad XID File!");
+
+    /**
+     * dm
+     */
+    public static final Exception MemTooSmallException = new RuntimeException("Memory too small!");
 }

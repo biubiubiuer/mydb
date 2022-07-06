@@ -4,6 +4,7 @@ import com.wd.mydb.backend.common.AbstractCache;
 import com.wd.mydb.backend.dm.page.Page;
 import com.wd.mydb.backend.dm.page.PageImpl;
 import com.wd.mydb.backend.utils.Panic;
+import com.wd.mydb.common.Error;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -13,6 +14,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.wd.mydb.backend.utils.DBConstant.PAGE_SIZE;
 
@@ -33,6 +35,19 @@ public class PageCacheImpl extends AbstractCache<Page> implements PageCache {
     
     public PageCacheImpl(RandomAccessFile raf, FileChannel fc, int maxResource) {
         super(maxResource);
+        if (maxResource < MEN_MIN_LIM) {
+            Panic.panic(Error.MemTooSmallException);
+        }
+        long length = 0;
+        try {
+            length = raf.length();
+        } catch (IOException e) {
+            Panic.panic(e);
+        }
+        this.raf = raf; 
+        this.fc = fc;
+        this.fileLock = new ReentrantLock();
+        this.pageNumbers = new AtomicInteger((int) length / PAGE_SIZE);
     }
 
     /**
