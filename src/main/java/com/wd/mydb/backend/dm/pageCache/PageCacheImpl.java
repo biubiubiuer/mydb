@@ -118,27 +118,39 @@ public class PageCacheImpl extends AbstractCache<Page> implements PageCache {
 
     @Override
     public Page getPage(int pgno) throws Exception {
-        return null;
+        return get((long) pgno);
     }
 
     @Override
     public void close() {
-
+        super.close();
+        try {
+            fc.close();
+            raf.close();
+        } catch (IOException e) {
+            Panic.panic(e);
+        }
     }
 
     @Override
     public void release(Page page) {
-
+        release((long) page.getPageNumber());
     }
 
     @Override
     public void truncateByPgno(int maxPgno) {
-
+        long size = pageOffset(maxPgno + 1);
+        try {
+            raf.setLength(size);
+        } catch (IOException e) {
+            Panic.panic(e);
+        }
+        pageNumbers.set(maxPgno);
     }
 
     @Override
     public int getPageNumber() {
-        return 0;
+        return pageNumbers.intValue();
     }
 
     @Override
