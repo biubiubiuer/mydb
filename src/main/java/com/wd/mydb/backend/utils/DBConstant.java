@@ -30,4 +30,12 @@ public class DBConstant {
      * Seed, 默认值为 13331
      */
     public static final long SEED = 13331;
+
+    /**
+     * 默认数据页大小为 8K
+     */
+    public static final int PAGE_SIZE = 1 << 13;
+    
+    public static final String DB_SUFFIX = ".db";
+    
 }
