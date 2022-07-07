@@ -10,10 +10,12 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
-import static com.wd.mydb.backend.utils.DBConstant.DB_SUFFIX;
-import static com.wd.mydb.backend.utils.DBConstant.PAGE_SIZE;
+import static com.wd.mydb.backend.dm.pageCache.PageCacheImpl.DB_SUFFIX;
+
 
 public interface PageCache {
+    
+    static final int PAGE_SIZE = 1 << 13;
     
     int newPage(byte[] initData);
     Page getPage(int pgno) throws Exception;

@@ -4,7 +4,7 @@ import com.wd.mydb.backend.utils.Parser;
 
 import java.util.Arrays;
 
-import static com.wd.mydb.backend.utils.DBConstant.PAGE_SIZE;
+import static com.wd.mydb.backend.dm.pageCache.PageCache.PAGE_SIZE;
 
 /**
  * PageX 管理普通页
@@ -18,6 +18,12 @@ public class PageX {
     private static final short OF_DATA = 2;
     public static final int MAX_FREE_SPACE = PAGE_SIZE - OF_DATA;
 
+    public static byte[] InitRaw() {
+        byte[] raw = new byte[PAGE_SIZE];
+        setFSO(raw, OF_DATA);
+        return raw;
+    }
+    
     /**
      * 将 raw 插入 pg 中, 返回插入位置
      * @param page

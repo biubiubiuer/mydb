@@ -4,6 +4,9 @@ import com.wd.mydb.backend.utils.RandomUtil;
 
 import java.util.Arrays;
 
+import static com.wd.mydb.backend.dm.pageCache.PageCache.PAGE_SIZE;
+
+
 /**
  * 特殊管理第一页
  * ValidCheck
@@ -14,6 +17,11 @@ public class PageOne {
     private static final int OF_VC = 100;
     private static final int LEN_VC = 8;
     
+    public static byte[] InitRaw() {
+        byte[] raw = new byte[PAGE_SIZE];
+        setVcOpen(raw);
+        return raw;
+    }
     
     public static void setVcOpen(Page page) {
         page.setDirty(true);

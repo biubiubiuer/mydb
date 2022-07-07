@@ -16,11 +16,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.wd.mydb.backend.utils.DBConstant.PAGE_SIZE;
-
 public class PageCacheImpl extends AbstractCache<Page> implements PageCache {
     
     private static final int MEN_MIN_LIM = 10;
+    public static final String DB_SUFFIX = ".db";
     
     private RandomAccessFile raf;
     private FileChannel fc;

@@ -1,7 +1,8 @@
-package com.wd.mydb.backend.tm;
+package com.wd.mydb.backend.dm.logger;
 
-import com.wd.mydb.common.Error;
 import com.wd.mydb.backend.utils.Panic;
+import com.wd.mydb.backend.utils.Parser;
+import com.wd.mydb.common.Error;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -9,23 +10,20 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import static com.wd.mydb.backend.tm.TransactionManagerImpl.LEN_XID_HEADER_LENGTH;
-import static com.wd.mydb.backend.tm.TransactionManagerImpl.XID_SUFFIX;
+import static com.wd.mydb.backend.dm.logger.LoggerImpl.LOG_SUFFIX;
 
-public interface TransactionManager {
-    long begin();  // 开启一个新事物
-    void commit(long xid);  // 提交一个事物
-    void abort(long xid);  // 取消一个事物
-    boolean isActive(long xid);  // 查询一个事物的状态是否是正在进行的状态
-    boolean isCommitted(long xid);  // 查询一个事物的状态是否是已提交
-    boolean isAborted(long xid);  // 查询一个事物d的状态是否是已取消
-    void close();  // 关闭 TM
+public interface Logger {
     
-    static TransactionManagerImpl create(String path) {
-        File f = new File(path + XID_SUFFIX);
+    void log(byte[] data);
+    void truncate(long x) throws Exception;
+    byte[] next();
+    void rewind();
+    void close();
+    
+    static Logger create(String path) {
+        File f = new File(path + LOG_SUFFIX);
         try {
             if (!f.createNewFile()) {
                 Panic.panic(Error.FileExistsException);
@@ -45,21 +43,21 @@ public interface TransactionManager {
         } catch (FileNotFoundException e) {
             Panic.panic(e);
         }
-        
-        // 写空 XID 文件头
-        ByteBuf buf = Unpooled.wrappedBuffer(new byte[LEN_XID_HEADER_LENGTH]);
+
+        ByteBuf buf = Unpooled.wrappedBuffer(Parser.int2Byte(0));
         try {
             fc.position(0);
             fc.write(buf.nioBuffer());
+            fc.force(false);
         } catch (IOException e) {
             Panic.panic(e);
         }
         
-        return new TransactionManagerImpl(raf, fc);
+        return new LoggerImpl(raf, fc, 0);
     }
     
-    static TransactionManagerImpl open(String path) {
-        File f = new File(path + XID_SUFFIX);
+    static Logger open(String path) {
+        File f = new File(path + LOG_SUFFIX);
         if (!f.exists()) {
             Panic.panic(Error.FileNotExistsException);
         }
@@ -76,6 +74,10 @@ public interface TransactionManager {
             Panic.panic(e);
         }
         
-        return new TransactionManagerImpl(raf, fc);
+        LoggerImpl lg = new LoggerImpl(raf, fc);
+        lg.init();
+        
+        return lg;
     }
+    
 }

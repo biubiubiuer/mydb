@@ -5,9 +5,10 @@ import java.util.Arrays;
 
 import com.google.common.primitives.Bytes;
 
-import static com.wd.mydb.backend.utils.DBConstant.SEED;
 
 public class Parser {
+    
+    private static final int SEED = 13331;
     
     public static byte[] short2Byte(short value) {
         return ByteBuffer.allocate(Short.SIZE / Byte.SIZE).putShort(value).array();

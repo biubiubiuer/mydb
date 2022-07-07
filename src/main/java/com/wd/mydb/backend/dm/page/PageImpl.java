@@ -23,32 +23,32 @@ public class PageImpl implements Page {
 
     @Override
     public void lock() {
-        
+        lock.lock();
     }
 
     @Override
     public void unlock() {
-
+        lock.unlock();
     }
 
     @Override
     public void release() {
-
+        pc.release(this);
     }
 
     @Override
     public void setDirty(boolean dirty) {
-
+        this.dirty = dirty;
     }
 
     @Override
     public boolean isDirty() {
-        return false;
+        return dirty;
     }
 
     @Override
     public int getPageNumber() {
-        return 0;
+        return pageNumber;
     }
 
     @Override

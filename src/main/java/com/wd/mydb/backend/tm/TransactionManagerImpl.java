@@ -13,10 +13,33 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 
-import static com.wd.mydb.backend.utils.DBConstant.*;
 
 public class TransactionManagerImpl implements TransactionManager{
 
+    /**
+     * XID 文件头长度
+     */
+    static final int LEN_XID_HEADER_LENGTH = 8;
+
+    /**
+     * 每个事物的占用长度
+     */
+    private static final int XID_FIELD_SIZE = 1;
+
+    /**
+     * 事物的三种状态
+     */
+    private static final byte FIELD_TRAN_ACTIVE = 0;
+    private static final byte FIELD_TRAN_COMMITTED = 1;
+    private static final byte FIELD_TRAN_ABORTED = 2;
+
+    /**
+     * 超级事物, 永远为 committed 状态
+     */
+    private static final long SUPER_XID = 0;
+
+    static final String XID_SUFFIX = ".xid";
+    
     public TransactionManagerImpl(RandomAccessFile file, FileChannel fc) {
         this.file = file;
         this.fc = fc;
